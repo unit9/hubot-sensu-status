@@ -6,8 +6,7 @@
 #   HUBOT_SENSU_PASSWORD
 #
 # Commands:
-#   hubot hello - <what the respond trigger does>
-#   orly - <what the hear trigger does>
+#   hubot sensu status - display the current events on Sensu
 #
 # Notes:
 #   <optional notes required for the script>
