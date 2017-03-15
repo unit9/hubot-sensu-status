@@ -17,6 +17,7 @@
   },
 
   "dependencies": {
+    "cron": "~1.2.1"
   },
 
   "peerDependencies": {

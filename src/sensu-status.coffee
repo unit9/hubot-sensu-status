@@ -4,6 +4,7 @@
 # Configuration:
 #   HUBOT_SENSU_USER
 #   HUBOT_SENSU_PASSWORD
+#   HUBOT_SENSU_API_URL
 #
 # Commands:
 #   hubot sensu status - display the current events on Sensu
@@ -15,20 +16,12 @@
 # Author:
 #   Krzysztof Skoracki <krzysztof.skoracki@unit9.com>
 
-iconForStatus = (status) ->
-  if status == 0
-    return ":green_heart:"
-  if status == 1
-    return ":yellow_heart:"
-  else if status == 2
-    return ":heart:"
-  else
-    return ":grey_heart:"
+cronJob = require('cron').CronJob
 
 module.exports = (robot) ->
   auth = "#{process.env.HUBOT_SENSU_USER}:#{process.env.HUBOT_SENSU_PASSWORD}"
 
-  robot.respond /sensu status/, (res) ->
+  getSensuStatus = (callback) ->
     robot.http("#{process.env.HUBOT_SENSU_API_URL}/events", {auth: auth})
       .get() (err, r, body) ->
         data = JSON.parse body
@@ -57,7 +50,26 @@ module.exports = (robot) ->
 
         statusIcon = iconForStatus status
 
-        res.send("Sensu status: #{statusIcon}\n" + response)
+        callback("Sensu status: #{statusIcon}\n" + response)
+
+  postSensuStatus = ->
+    getSensuStatus (status) ->
+        robot.messageRoom '#sysop', status
+
+  iconForStatus = (status) ->
+    if status == 0
+      return ":green_heart:"
+    if status == 1
+      return ":yellow_heart:"
+    else if status == 2
+      return ":heart:"
+    else
+      return ":grey_heart:"
+
+  robot.respond /sensu status/, (res) ->
+
+    getSensuStatus (status) ->
+      res.send status
 
   robot.respond /sensu info/, (res) ->
     robot.http("#{process.env.HUBOT_SENSU_API_URL}/info", {auth: auth})
@@ -65,3 +77,5 @@ module.exports = (robot) ->
         data = JSON.parse body
         res.send("API URL: #{process.env.HUBOT_SENSU_API_URL}\n" +
                  "Sensu version: #{data.sensu.version}")
+
+  new cronJob('0 0 10 * * 1-5', postSensuStatus, null, true, "Europe/Warsaw")
