@@ -23,7 +23,7 @@ iconForStatus = (status) ->
   else if status == 2
     return ":heart:"
   else
-    return ":blue_heart:"
+    return ":grey_heart:"
 
 module.exports = (robot) ->
   robot.respond /sensu status/, (res) ->
