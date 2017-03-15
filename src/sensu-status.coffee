@@ -28,7 +28,7 @@ module.exports = (robot) ->
   robot.respond /sensu status/, (res) ->
     auth = "#{process.env.HUBOT_SENSU_USER}:#{process.env.HUBOT_SENSU_PASSWORD}"
 
-    robot.http("https://sensu-api.unit9.net/events", {auth: auth})
+    robot.http("#{process.env.HUBOT_SENSU_API_URL}/events", {auth: auth})
       .get() (err, r, body) ->
         data = JSON.parse body
         response = ''
