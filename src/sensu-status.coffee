@@ -7,6 +7,7 @@
 #
 # Commands:
 #   hubot sensu status - display the current events on Sensu
+#   hubot sensu info - show Sensu settings
 #
 # Notes:
 #   <optional notes required for the script>
@@ -25,9 +26,9 @@ iconForStatus = (status) ->
     return ":grey_heart:"
 
 module.exports = (robot) ->
-  robot.respond /sensu status/, (res) ->
-    auth = "#{process.env.HUBOT_SENSU_USER}:#{process.env.HUBOT_SENSU_PASSWORD}"
+  auth = "#{process.env.HUBOT_SENSU_USER}:#{process.env.HUBOT_SENSU_PASSWORD}"
 
+  robot.respond /sensu status/, (res) ->
     robot.http("#{process.env.HUBOT_SENSU_API_URL}/events", {auth: auth})
       .get() (err, r, body) ->
         data = JSON.parse body
@@ -57,3 +58,10 @@ module.exports = (robot) ->
         statusIcon = iconForStatus status
 
         res.send("Sensu status: #{statusIcon}\n" + response)
+
+  robot.respond /sensu info/, (res) ->
+    robot.http("#{process.env.HUBOT_SENSU_API_URL}/info", {auth: auth})
+      .get() (err, r, body) ->
+        data = JSON.parse body
+        res.send("API URL: #{process.env.HUBOT_SENSU_API_URL}\n" +
+                 "Sensu version: #{data.sensu.version}")
